@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    container_name: lol-discord-bot
+    build: .             # 현재 폴더의 Dockerfile로 빌드
+    restart: always      # 봇이 죽거나 서버가 재부팅되면 자동 시작
+
+    # 환경 변수 파일 로드 (.env)
+    env_file:
+      - .env
+
+    volumes:
+      - ./:/app
