@@ -4,14 +4,12 @@ import asyncio
 from discord.ext import commands
 from dotenv import load_dotenv
 
-# 환경변수 로드
 load_dotenv()
 TOKEN = os.getenv("DISCORD_BOT_TOKEN")
 
 
 class MyBot(commands.Bot):
     def __init__(self):
-        # Intents 설정 (봇이 서버에서 볼 수 있는 권한)
         intents = discord.Intents.default()
         intents.message_content = True
 
@@ -22,22 +20,31 @@ class MyBot(commands.Bot):
         )
 
     async def setup_hook(self):
-        # cogs 폴더의 모든 확장 기능 로드
-        for filename in os.listdir('./cogs'):
-            if filename.endswith('.py'):
-                await self.load_extension(f'cogs.{filename[:-3]}')
+        # cogs 폴더 로드
+        if os.path.exists('./cogs'):
+            for filename in os.listdir('./cogs'):
+                if filename.endswith('.py'):
+                    try:
+                        await self.load_extension(f'cogs.{filename[:-3]}')
+                        print(f"🧩 Loaded extension: {filename}")
+                    except Exception as e:
+                        print(f"⚠️ Failed to load {filename}: {e}")
 
-        # 슬래시 명령어 동기화 (봇 켤 때 서버에 명령어 등록)
+        # 주의: 글로벌 싱크는 갱신에 최대 1시간이 걸릴 수 있습니다.
+        # 개발 중에는 특정 길드에만 싱크하는 것이 좋지만, 편의상 여기에 둡니다.
         await self.tree.sync()
-        print("✅ Slash commands synced!")
+        print("✅ Slash commands synced globally!")
 
     async def on_ready(self):
         print(f'🤖 Logged in as {self.user} (ID: {self.user.id})')
-        # 상태 메시지 변경 (예: /승률분석 입력 대기 중...)
-        await self.change_presence(activity=discord.Game(name="/승률분석 입력"))
+        await self.change_presence(activity=discord.Game(name="/승률분석 [RiotID]"))
 
 
 async def main():
+    if not TOKEN:
+        print("❌ Error: DISCORD_BOT_TOKEN is missing in .env")
+        return
+
     bot = MyBot()
     async with bot:
         await bot.start(TOKEN)
@@ -47,5 +54,4 @@ if __name__ == '__main__':
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        # Ctrl+C로 종료 시 깔끔하게
         pass
