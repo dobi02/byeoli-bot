@@ -1,5 +1,7 @@
 FROM python:3.13-slim
 
+ENV PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
 # 1. 의존성 설치

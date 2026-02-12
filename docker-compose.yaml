@@ -12,3 +12,11 @@ services:
 
     volumes:
       - ./:/app
+
+    networks:
+      - my-shared-network
+
+networks:
+  my-shared-network:
+    external: true
+    name: lol-gnn-winrate-service_lol-network
